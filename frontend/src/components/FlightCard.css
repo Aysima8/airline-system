@@ -1,0 +1,166 @@
+.flight-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.flight-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.flight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.airline-info h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.flight-number {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.flight-price {
+  text-align: right;
+}
+
+.price {
+  display: block;
+  font-size: 28px;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 4px;
+}
+
+.price-label {
+  font-size: 12px;
+  color: #666;
+}
+
+.flight-route {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.route-point {
+  flex: 1;
+  text-align: center;
+}
+
+.route-point h4 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  color: #333;
+  font-weight: 700;
+}
+
+.route-point .time {
+  font-size: 18px;
+  font-weight: 600;
+  color: #555;
+  margin: 4px 0;
+}
+
+.route-point .date {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.route-line {
+  flex: 2;
+  position: relative;
+  height: 2px;
+  background: linear-gradient(to right, #667eea, #764ba2);
+  margin: 0 16px;
+}
+
+.duration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.duration span {
+  font-size: 20px;
+}
+
+.duration p {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+}
+
+.flight-details {
+  display: flex;
+  gap: 24px;
+  margin: 20px 0;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item .label {
+  font-size: 12px;
+  color: #666;
+}
+
+.detail-item .value {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-buy {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 16px;
+}
+
+.btn-buy:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.btn-buy:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}

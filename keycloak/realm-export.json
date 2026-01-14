@@ -1,0 +1,141 @@
+{
+  "realm": "airline",
+  "enabled": true,
+  "displayName": "Airline System",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": false,
+  "rememberMe": true,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+
+  "roles": {
+    "realm": [
+      {
+        "name": "USER",
+        "description": "Regular user role - can search flights and buy tickets"
+      },
+      {
+        "name": "ADMIN",
+        "description": "Administrator role - can add/manage flights"
+      },
+      {
+        "name": "SERVICE",
+        "description": "Service-to-service communication role"
+      }
+    ]
+  },
+
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@airline.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ADMIN", "USER"],
+      "clientRoles": {}
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "email": "user@airline.com",
+      "firstName": "Regular",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["USER"],
+      "clientRoles": {}
+    },
+    {
+      "username": "service-account",
+      "enabled": true,
+      "email": "service@airline.com",
+      "serviceAccountClientId": "airline-service",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "service123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["SERVICE"],
+      "clientRoles": {}
+    }
+  ],
+
+  "clients": [
+    {
+      "clientId": "airline-gateway",
+      "name": "Airline API Gateway",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "authorizationServicesEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "secret": "airline-gateway-secret-2024",
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost/*",
+        "http://localhost:80/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost",
+        "http://localhost:80"
+      ],
+      "attributes": {
+        "access.token.lifespan": "1800"
+      }
+    },
+    {
+      "clientId": "airline-frontend",
+      "name": "Airline Frontend",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:80/*"
+      ],
+      "webOrigins": [
+        "http://localhost",
+        "http://localhost:80"
+      ]
+    },
+    {
+      "clientId": "airline-service",
+      "name": "Airline Service Account",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "serviceAccountsEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "secret": "airline-service-secret-2024",
+      "attributes": {
+        "access.token.lifespan": "3600"
+      }
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: airline-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: airline_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - airline-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: airline-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - airline-network
+
+  # RabbitMQ Message Broker
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: airline-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - airline-network
+
+  # Keycloak IAM
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: airline-keycloak
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+      KC_HEALTH_ENABLED: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json
+    networks:
+      - airline-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080 && echo -e 'GET /health/ready HTTP/1.1\\r\\nhost: http://localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && cat <&3 | grep -q '200 OK'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  # ML Price Service
+  ml-price-service:
+    build:
+      context: ./ml-price-service
+      dockerfile: Dockerfile
+    container_name: airline-ml-service
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 5000
+      ENV: production
+    ports:
+      - "5000:5000"
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+  # Flight Service
+  flight-service:
+    build:
+      context: ./flight-service
+      dockerfile: Dockerfile
+    container_name: airline-flight-service
+    environment:
+      PORT: 3002
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: airline_flights
+      REDIS_URL: redis://redis:6379
+      ML_SERVICE_URL: http://ml-price-service:5000
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ml-price-service:
+        condition: service_started
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+  # Ticket Service
+  ticket-service:
+    build:
+      context: ./ticket-service
+      dockerfile: Dockerfile
+    container_name: airline-ticket-service
+    environment:
+      PORT: 3003
+      NODE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: airline_tickets
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      FLIGHT_SERVICE_URL: http://flight-service:3002
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      flight-service:
+        condition: service_started
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: airline-notification-service
+    environment:
+      PORT: 3004
+      NODE_ENV: production
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      FLIGHT_SERVICE_URL: http://flight-service:3002
+      TICKET_SERVICE_URL: http://ticket-service:3003
+    ports:
+      - "3004:3004"
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: airline-gateway
+    environment:
+      PORT: 3000
+      NODE_ENV: production
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_REALM: airline
+      KEYCLOAK_CLIENT_ID: airline-gateway
+      KEYCLOAK_CLIENT_SECRET:
+      FLIGHT_SERVICE_URL: http://flight-service:3002
+      TICKET_SERVICE_URL: http://ticket-service:3003
+      NOTIFICATION_SERVICE_URL: http://notification-service:3004
+    ports:
+      - "3000:3000"
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      flight-service:
+        condition: service_started
+      ticket-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: airline-frontend
+    environment:
+      VITE_API_URL: http://localhost:3000/api
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - airline-network
+    restart: unless-stopped
+
+# Networks
+networks:
+  airline-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

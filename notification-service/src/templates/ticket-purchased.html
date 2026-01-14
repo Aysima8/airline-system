@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biletiniz Onaylandı</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+    .content {
+      padding: 30px;
+    }
+    .ticket-info {
+      background-color: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .ticket-info p {
+      margin: 10px 0;
+      color: #333;
+    }
+    .ticket-info strong {
+      color: #667eea;
+    }
+    .pnr-box {
+      background-color: #667eea;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 30px;
+      background-color: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✈️ Biletiniz Onaylandı!</h1>
+    </div>
+
+    <div class="content">
+      <p>Merhaba,</p>
+      <p>Uçuş biletiniz başarıyla satın alındı ve onaylandı. Rezervasyon bilgileriniz aşağıdadır:</p>
+
+      <div class="pnr-box">
+        PNR: {{pnr}}
+      </div>
+
+      <div class="ticket-info">
+        <p><strong>Uçuş Numarası:</strong> {{flightNumber}}</p>
+        <p><strong>Yolcu Sayısı:</strong> {{passengers}}</p>
+        <p><strong>Toplam Ücret:</strong> {{totalPrice}} TL</p>
+        <p><strong>Ödeme Tipi:</strong> {{paymentType}}</p>
+      </div>
+
+      <p>Uçuştan 2 saat önce havaalanında bulunmanızı rica ederiz.</p>
+      <p><strong>İyi uçuşlar dileriz!</strong></p>
+
+      <div style="text-align: center;">
+        <a href="#" class="btn">Biletimi Görüntüle</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>Bu otomatik bir emaildir, lütfen cevaplamayınız.</p>
+      <p>© 2026 Airline System - Tüm hakları saklıdır.</p>
+    </div>
+  </div>
+</body>
+</html>
