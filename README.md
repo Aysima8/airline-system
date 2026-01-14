@@ -1,39 +1,39 @@
 Modern airline reservation system — developed with microservices architecture and containerized using Docker.
 
-🏗️ Architecture
-┌─────────────┐
-│  Frontend   │ (React + Vite)
-│  (Port 80)  │
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│  Gateway    │ (Express.js)
-│ (Port 3000) │
-└──────┬──────┘
-       │
-   ┌───┴───────────────────────┐
-   │                           │
-┌──▼──────────┐    ┌──────────▼─────┐
-│Flight Service│    │Ticket Service  │
-│ (Port 3002)  │    │ (Port 3003)    │
-└──────┬───────┘    └────────┬───────┘
-       │                     │
-       │    ┌────────────────┘
-       │    │
-   ┌───▼────▼─────┐    ┌──────────────┐
-   │ML Price Svc  │    │Notification  │
-   │ (Port 5000)  │    │  Service     │
-   └──────────────┘    │ (Port 3004)  │
-                       └──────────────┘
+# ✈️ Airline System - Microservices Architecture
 
-┌─────────────────────────────────────────────────┐
-│         Infrastructure Services                 │
-├─────────────────────────────────────────────────┤
-│ PostgreSQL │ Redis │ RabbitMQ │ Keycloak (IAM) │
-│ (Port 5432)│ (6379)│  (5672)  │    (8080)      │
-└─────────────────────────────────────────────────┘
+Modern airline reservation system — developed with microservices architecture and containerized using Docker.
 
-🚀 Features
+## Architecture
+
+### Diagram (recommended)
+
+```mermaid
+flowchart TB
+  FE[Frontend<br/>(React + Vite)<br/>Port 80] --> GW[Gateway<br/>(Express.js)<br/>Port 3000]
+
+  GW --> FS[Flight Service<br/>Port 3002]
+  GW --> TS[Ticket Service<br/>Port 3003]
+
+  FS --> ML[ML Price Service<br/>Port 5000]
+  TS --> NS[Notification Service<br/>Port 3004]
+
+  subgraph Infra[Infrastructure Services]
+    DB[(PostgreSQL<br/>Port 5432)]
+    RD[(Redis<br/>Port 6379)]
+    MQ[(RabbitMQ<br/>Port 5672<br/>UI 15672)]
+    KC[(Keycloak (IAM)<br/>Port 8080)]
+  end
+
+  FS --> DB
+  TS --> DB
+  TS --> RD
+  TS --> MQ
+  NS --> MQ
+  GW --> KC
+  FE --> KC
+
+ Features
 Services
 
 API Gateway (Port 3000)
