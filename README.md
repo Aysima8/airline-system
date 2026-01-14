@@ -1,8 +1,8 @@
-# ✈️ Airline System - Microservices Architecture
+# Airline System - Microservices Architecture
 
 Modern airline reservation system -> developed with microservices architecture and containerized using Docker.
 
-## 🏗️ Mimari
+##  Mimari
 
 ```
 ┌─────────────┐
@@ -38,7 +38,7 @@ Modern airline reservation system -> developed with microservices architecture a
 └─────────────────────────────────────────────────┘
 ```
 
-## 🚀 Özellikler
+## Özellikler
 
 ### Servisler
 
@@ -87,7 +87,7 @@ Modern airline reservation system -> developed with microservices architecture a
 - **Docker**: Containerization
 - **Nginx**: Frontend web server
 
-## 🔐 Authentication (Keycloak IAM)
+##  Authentication (Keycloak IAM)
 
 Proje **Keycloak** kullanarak IAM (Identity and Access Management) sağlar.
 
@@ -105,7 +105,7 @@ Proje **Keycloak** kullanarak IAM (Identity and Access Management) sağlar.
 
 **Detaylı bilgi**: [KEYCLOAK_SETUP.md](./KEYCLOAK_SETUP.md)
 
-## 📦 Kurulum
+## Kurulum
 
 ### Gereksinimler
 
@@ -157,7 +157,7 @@ docker compose logs -f flight-service
 | Redis | localhost:6379 | Cache |
 | RabbitMQ UI | http://localhost:15672 | Queue yönetimi (guest/guest) |
 
-## 📝 API Dokümantasyonu
+##  API Dokümantasyonu
 
 ### Gateway Endpoints
 
@@ -225,7 +225,7 @@ docker compose logs --tail=100
 docker compose logs -f gateway
 ```
 
-## 🧪 Test
+##  Test
 
 ```bash
 # Health check tüm servisler
@@ -251,7 +251,7 @@ curl -X POST http://localhost:5000/predict \
   }'
 ```
 
-## 📊 Monitoring
+##  Monitoring
 
 ### Container Status
 
@@ -279,7 +279,7 @@ docker exec -it airline-redis redis-cli
 # http://localhost:15672 (guest/guest)
 ```
 
-## 🔧 Troubleshooting
+##  Troubleshooting
 
 ### Port Çakışması
 
@@ -347,54 +347,8 @@ airline-system/
 └── README.md
 ```
 
-## 🎯 Production Deployment
 
-### Azure Deployment
-
-```bash
-# Azure Container Registry
-az acr build --registry myregistry --image airline-gateway:v1 ./gateway
-
-# Azure Container Instances
-az container create --resource-group myRG \
-  --name airline-system \
-  --file docker-compose.yml
-```
-
-### Environment Variables
-
-Production için `.env` dosyasını güvenli şekilde ayarlayın:
-
-```env
-NODE_ENV=production
-JWT_SECRET=<strong-secret>
-DB_PASSWORD=<secure-password>
-SMTP_USER=<production-email>
-SMTP_PASS=<app-password>
-```
-
-## 👥 Ekip
-
-- Backend Developer
-- Frontend Developer
-- ML Engineer
-- DevOps Engineer
-
-## 📄 Lisans
-
-MIT License
-
-## 🤝 Katkıda Bulunma
-
-1. Fork the project
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
----
-
-## 🌐 Deployment Status
+##  Deployment Status
 
 ### Current Status: **LOCAL DEVELOPMENT ONLY**
 
@@ -418,8 +372,8 @@ This project is currently configured for local development. Production deploymen
 - ✅ Route-based separation (`/admin/*` routes)
 - ✅ Role-based access control (ADMIN role required)
 - ✅ Dark theme for admin pages
-- ❌ Separate domain deployment (planned, not implemented)
-- ❌ Production hosting (planned, not implemented)
+-  Separate domain deployment (planned, not implemented)
+-  Production hosting (planned, not implemented)
 
 **To Deploy Separately:**
 1. Build two frontend versions:
