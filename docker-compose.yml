@@ -202,10 +202,13 @@ services:
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: airline
       KEYCLOAK_CLIENT_ID: airline-gateway
-      KEYCLOAK_CLIENT_SECRET:
+      KEYCLOAK_CREDENTIALS_SECRET: airline-gateway-secret-2024
+      KEYCLOAK_CLIENT_SECRET: airline-gateway-secret-2024
+      KEYCLOAK_WEB_CLIENT_ID: airline-web
       FLIGHT_SERVICE_URL: http://flight-service:3002
       TICKET_SERVICE_URL: http://ticket-service:3003
       NOTIFICATION_SERVICE_URL: http://notification-service:3004
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     ports:
       - "3000:3000"
     depends_on:

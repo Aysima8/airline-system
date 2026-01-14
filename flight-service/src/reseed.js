@@ -2,61 +2,59 @@ const sequelize = require('./config/db');
 const Flight = require('./models/flight.model');
 const Airport = require('./models/airport.model');
 
-// Yardımcı fonksiyon: Belirli bir tarih ve saat için yeni Date objesi oluştur
+// Yardimci fonksiyon: Belirli bir tarih ve saat icin yeni Date objesi olustur
 const createDateTime = (baseDate, hours, minutes = 0) => {
   const date = new Date(baseDate);
   date.setHours(hours, minutes, 0, 0);
   return date;
 };
 
-const seedAirports = async () => {
-  const existingCount = await Airport.count();
-  if (existingCount > 0) {
-    console.log(`Veritabanında zaten ${existingCount} havalimanı var. Airport seed atlanıyor.`);
-    return;
-  }
-
-  const airports = [
-    { code: 'IST', name: 'İstanbul Havalimanı', city: 'İstanbul', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'SAW', name: 'Sabiha Gökçen Havalimanı', city: 'İstanbul', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'AYT', name: 'Antalya Havalimanı', city: 'Antalya', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'ADB', name: 'Adnan Menderes Havalimanı', city: 'İzmir', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'ESB', name: 'Esenboğa Havalimanı', city: 'Ankara', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'TZX', name: 'Trabzon Havalimanı', city: 'Trabzon', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'DLM', name: 'Dalaman Havalimanı', city: 'Muğla', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'BJV', name: 'Milas-Bodrum Havalimanı', city: 'Muğla', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'GZT', name: 'Gaziantep Havalimanı', city: 'Gaziantep', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'VAN', name: 'Van Ferit Melen Havalimanı', city: 'Van', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'DIY', name: 'Diyarbakır Havalimanı', city: 'Diyarbakır', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'ERZ', name: 'Erzurum Havalimanı', city: 'Erzurum', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'KYA', name: 'Konya Havalimanı', city: 'Konya', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'SZF', name: 'Samsun Çarşamba Havalimanı', city: 'Samsun', country: 'Türkiye', timezone: 'Europe/Istanbul' },
-    { code: 'ASR', name: 'Kayseri Erkilet Havalimanı', city: 'Kayseri', country: 'Türkiye', timezone: 'Europe/Istanbul' }
-  ];
-
-  await Airport.bulkCreate(airports);
-  console.log(`✅ ${airports.length} havalimanı başarıyla eklendi!`);
-};
-
-const seedFlights = async () => {
+const reseed = async () => {
   try {
+    console.log('Veritabani baglantisi kuruluyor...');
+    await sequelize.authenticate();
+    console.log('Veritabani baglantisi basarili!');
+
+    // Sync tabloları
     await sequelize.sync();
 
-    // Önce havalimanlarını ekle
-    await seedAirports();
+    // Mevcut verileri sil
+    console.log('Mevcut ucuslar siliniyor...');
+    await Flight.destroy({ where: {}, truncate: true, cascade: true });
+    console.log('Mevcut ucuslar silindi.');
 
-    // Mevcut uçuşları kontrol et
-    const existingCount = await Flight.count();
-    if (existingCount > 0) {
-      console.log(`Veritabanında zaten ${existingCount} uçuş var. Flight seed atlanıyor.`);
-      return;
-    }
+    console.log('Mevcut havaalanlari siliniyor...');
+    await Airport.destroy({ where: {}, truncate: true, cascade: true });
+    console.log('Mevcut havaalanlari silindi.');
 
+    // Havaalanlarini ekle
+    const airports = [
+      { code: 'IST', name: 'Istanbul Havalimani', city: 'Istanbul', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'SAW', name: 'Sabiha Gokcen Havalimani', city: 'Istanbul', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'AYT', name: 'Antalya Havalimani', city: 'Antalya', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'ADB', name: 'Adnan Menderes Havalimani', city: 'Izmir', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'ESB', name: 'Esenboga Havalimani', city: 'Ankara', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'TZX', name: 'Trabzon Havalimani', city: 'Trabzon', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'DLM', name: 'Dalaman Havalimani', city: 'Mugla', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'BJV', name: 'Milas-Bodrum Havalimani', city: 'Mugla', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'GZT', name: 'Gaziantep Havalimani', city: 'Gaziantep', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'VAN', name: 'Van Ferit Melen Havalimani', city: 'Van', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'DIY', name: 'Diyarbakir Havalimani', city: 'Diyarbakir', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'ERZ', name: 'Erzurum Havalimani', city: 'Erzurum', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'KYA', name: 'Konya Havalimani', city: 'Konya', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'SZF', name: 'Samsun Carsamba Havalimani', city: 'Samsun', country: 'Turkiye', timezone: 'Europe/Istanbul' },
+      { code: 'ASR', name: 'Kayseri Erkilet Havalimani', city: 'Kayseri', country: 'Turkiye', timezone: 'Europe/Istanbul' }
+    ];
+
+    await Airport.bulkCreate(airports);
+    console.log(`${airports.length} havalimani eklendi!`);
+
+    // Ucuslari ekle
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const flights = [];
 
-    // Gelecek 60 gün için uçuşlar oluştur (30'dan 60'a çıkarıldı)
+    // Gelecek 60 gun icin ucuslar olustur
     for (let dayOffset = 0; dayOffset < 60; dayOffset++) {
       const flightDate = new Date(today);
       flightDate.setDate(flightDate.getDate() + dayOffset);
@@ -105,7 +103,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // AYT -> IST (Dönüş)
+      // AYT -> IST (Donus)
       flights.push({
         flightNumber: `TK${dateStr}03`,
         airline: 'Turkish Airlines',
@@ -149,7 +147,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // ESB -> IST (Ankara Dönüş)
+      // ESB -> IST (Ankara Donus)
       flights.push({
         flightNumber: `TK${dateStr}09`,
         airline: 'Turkish Airlines',
@@ -164,7 +162,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // IST -> ADB (İzmir)
+      // IST -> ADB (Izmir)
       flights.push({
         flightNumber: `TK${dateStr}06`,
         airline: 'Turkish Airlines',
@@ -193,7 +191,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // ADB -> IST (İzmir Dönüş)
+      // ADB -> IST (Izmir Donus)
       flights.push({
         flightNumber: `TK${dateStr}10`,
         airline: 'Turkish Airlines',
@@ -237,7 +235,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // TZX -> IST (Trabzon Dönüş)
+      // TZX -> IST (Trabzon Donus)
       flights.push({
         flightNumber: `TK${dateStr}11`,
         airline: 'Turkish Airlines',
@@ -267,7 +265,7 @@ const seedFlights = async () => {
         status: 'scheduled'
       });
 
-      // DLM -> IST (Dalaman Dönüş)
+      // DLM -> IST (Dalaman Donus)
       flights.push({
         flightNumber: `TK${dateStr}12`,
         airline: 'Turkish Airlines',
@@ -284,13 +282,17 @@ const seedFlights = async () => {
     }
 
     await Flight.bulkCreate(flights);
-    console.log(`✅ ${flights.length} uçuş başarıyla eklendi!`);
+    console.log(`${flights.length} ucus basariyla eklendi!`);
+
+    console.log('\n=== RESEED TAMAMLANDI ===');
+    console.log(`Toplam ${airports.length} havalimani`);
+    console.log(`Toplam ${flights.length} ucus`);
 
   } catch (error) {
-    console.error('Seed hatası:', error);
+    console.error('Reseed hatasi:', error);
   } finally {
     process.exit(0);
   }
 };
 
-seedFlights();
+reseed();

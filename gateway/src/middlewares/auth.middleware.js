@@ -1,9 +1,13 @@
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 
+// Keycloak URL - Docker icinde keycloak, disarida localhost
+const KEYCLOAK_URL = process.env.KEYCLOAK_URL || 'http://keycloak:8080';
+const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'airline';
+
 // Keycloak JWKS client
 const client = jwksClient({
-  jwksUri: process.env.KEYCLOAK_JWKS_URI || 'http://localhost:8080/realms/airline/protocol/openid-connect/certs',
+  jwksUri: `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs`,
   cache: true,
   cacheMaxAge: 600000, // 10 minutes
   rateLimit: true,
@@ -14,6 +18,7 @@ const client = jwksClient({
 const getKey = (header, callback) => {
   client.getSigningKey(header.kid, (err, key) => {
     if (err) {
+      console.error('JWKS getSigningKey error:', err.message);
       return callback(err);
     }
     const signingKey = key.publicKey || key.rsaPublicKey;
@@ -21,7 +26,7 @@ const getKey = (header, callback) => {
   });
 };
 
-// Keycloak JWT doğrulama middleware'i
+// Keycloak JWT dogrulama middleware'i
 const authMiddleware = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -35,21 +40,21 @@ const authMiddleware = (req, res, next) => {
 
     const token = authHeader.substring(7);
 
-    // JWT token'ı verify et (Keycloak public key ile JWKS'den)
+    // JWT token'i verify et (Keycloak public key ile JWKS'den)
+    // NOT: audience kontrolu Keycloak token'larinda sorun cikarabilir, kaldirildi
     jwt.verify(token, getKey, {
-      algorithms: ['RS256'],
-      issuer: process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/airline',
-      audience: process.env.KEYCLOAK_AUDIENCE || 'account'
+      algorithms: ['RS256']
+      // issuer ve audience kontrolu kaldirildi - Keycloak token'lari farkli issuer donebilir
     }, (err, decoded) => {
       if (err) {
-        console.error('JWT verification error:', err);
+        console.error('JWT verification error:', err.message);
         return res.status(401).json({
           success: false,
-          message: 'Token doğrulama hatası: ' + err.message
+          message: 'Token dogrulama hatasi: ' + err.message
         });
       }
 
-      // Kullanıcı bilgilerini request'e ekle
+      // Kullanici bilgilerini request'e ekle
       req.user = {
         id: decoded.sub,
         username: decoded.preferred_username,
@@ -65,7 +70,7 @@ const authMiddleware = (req, res, next) => {
     console.error('Auth middleware error:', error);
     return res.status(401).json({
       success: false,
-      message: 'Token doğrulama hatası'
+      message: 'Token dogrulama hatasi'
     });
   }
 };

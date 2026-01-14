@@ -133,8 +133,32 @@ class TicketService {
   // Kullanıcının biletlerini getir (with pagination)
   async getUserTickets(userId, page = 1, pageSize = 10) {
     const result = await ticketRepository.findByUserId(userId, page, pageSize);
+
+    // Her bilet icin ucus bilgilerini ekle
+    const ticketsWithFlights = await Promise.all(
+      result.tickets.map(async (ticket) => {
+        const ticketData = ticket.toJSON ? ticket.toJSON() : ticket;
+        const flight = await this.getFlightDetails(ticketData.flightId);
+
+        // Yolcu bilgilerini duzgun formatta dondur
+        const passengers = ticketData.passengers || [];
+        const firstPassenger = passengers[0] || {};
+
+        return {
+          ...ticketData,
+          flight: flight || null,
+          // Frontend icin ek alanlar
+          passengerName: firstPassenger.firstName
+            ? `${firstPassenger.firstName} ${firstPassenger.lastName || ''}`
+            : (firstPassenger.name || 'Bilinmiyor'),
+          passengerCount: passengers.length,
+          price: ticketData.totalPrice
+        };
+      })
+    );
+
     return {
-      tickets: result.tickets,
+      tickets: ticketsWithFlights,
       pagination: {
         total: result.total,
         page: parseInt(page),

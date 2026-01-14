@@ -107,6 +107,27 @@
       }
     },
     {
+      "clientId": "airline-web",
+      "name": "Airline Web Client",
+      "description": "Public client for frontend login",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "redirectUris": [
+        "http://localhost/*",
+        "http://localhost:80/*",
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost",
+        "http://localhost:80",
+        "http://localhost:3000"
+      ]
+    },
+    {
       "clientId": "airline-frontend",
       "name": "Airline Frontend",
       "enabled": true,

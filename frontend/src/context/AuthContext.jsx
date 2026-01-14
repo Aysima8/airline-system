@@ -19,9 +19,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Login
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { username, password });
       const { token, user } = response.data.data;
 
       localStorage.setItem('token', token);
@@ -30,18 +30,22 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Giriş başarısız'
-      };
+      throw error;
     }
   };
 
   // Register
   const register = async (userData) => {
     try {
-      const response = await api.post('/auth/register', userData);
-      const { token, user } = response.data.data;
+      // Register sadece kullanıcı oluşturur, token dönmez
+      await api.post('/auth/register', userData);
+
+      // Kayıt başarılı olduktan sonra otomatik login yap
+      const loginResponse = await api.post('/auth/login', {
+        username: userData.username,
+        password: userData.password
+      });
+      const { token, user } = loginResponse.data.data;
 
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -49,10 +53,7 @@ export function AuthProvider({ children }) {
 
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Kayıt başarısız'
-      };
+      throw error;
     }
   };
 

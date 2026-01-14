@@ -3,6 +3,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const sequelize = require('./config/db');
 
+// Middlewares
+const userMiddleware = require('./middlewares/user.middleware');
+
 // Routes
 const ticketRoutes = require('./routes/ticket.routes');
 const milesRoutes = require('./routes/miles.routes');
@@ -14,6 +17,9 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Gateway'den gelen user bilgilerini parse et
+app.use(userMiddleware);
 
 // Database başlatma
 const initializeApp = async () => {

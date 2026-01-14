@@ -13,13 +13,25 @@ const proxy = async (req, res, targetUrl) => {
     const pathOnly = pathWithQuery.split('?')[0];
     const url = `${targetUrl}${pathOnly}`;
 
+    // Auth middleware'den gelen user bilgisini header'a ekle
+    const headers = {
+      ...req.headers,
+      host: new URL(targetUrl).host
+    };
+
+    // Eğer user bilgisi varsa (auth middleware'den), header olarak ekle
+    if (req.user) {
+      headers['x-user-id'] = req.user.id;
+      headers['x-user-username'] = req.user.username;
+      headers['x-user-email'] = req.user.email || '';
+      headers['x-user-roles'] = JSON.stringify(req.user.roles || []);
+      headers['x-user-name'] = req.user.name || '';
+    }
+
     const config = {
       method: req.method,
       url: url,
-      headers: {
-        ...req.headers,
-        host: new URL(targetUrl).host
-      },
+      headers: headers,
       params: req.query,
       data: req.body
     };
