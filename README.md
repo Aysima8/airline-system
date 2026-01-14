@@ -2,7 +2,7 @@
 
 Modern airline reservation system -> developed with microservices architecture and containerized using Docker.
 
-##  Mimari
+##  Architecture
 
 ```
 ┌─────────────┐
